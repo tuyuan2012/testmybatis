@@ -64,6 +64,8 @@ public class TestMybatis {
 			UserServiceI userService = （UserServiceI）ac.getBean("userService");//获取bean对象
 		*/
 		User u = userService.getUserById("1");
+		//既然我们已经导入了log4j包，那我们就不用Sytemout.println()来打印了
+		//将对象以json字符串在日志中打印出来
 		logger.info(JSON.toJSONStringWithDateFormat(u, "yyyy-MM-dd HH:mm:ss"));
 	}
 
@@ -82,6 +84,12 @@ public class TestMybatis {
 	@Test
 	public void test4() {
 		List<User> l = userService.getAll3();
+		logger.info(JSON.toJSONStringWithDateFormat(l, "yyyy-MM-dd HH:mm:ss"));
+	}
+	
+	@Test
+	public void test5() {
+		List<User> l = userService.getAll4();
 		logger.info(JSON.toJSONStringWithDateFormat(l, "yyyy-MM-dd HH:mm:ss"));
 	}
 }

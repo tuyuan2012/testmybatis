@@ -128,6 +128,7 @@
 	<resultMap type="sy.model.User" id="userResultMap" extends="BaseResultMap">
 		<collection property="userRoles" column="ID" javaType="list" select="selectUserRole" />
 	</resultMap>
+	<!-- resultMap="userResultMap"表示返回的结果 -->
 	<select id="getAll" resultMap="userResultMap">
 		select ID, CREATEDATETIME, MODIFYDATETIME, NAME, PWD from tuser
 	</select>
@@ -181,6 +182,42 @@
 		tuser_trole.ID userrole_id,
 		tuser_trole.ROLE_ID role_id,
 		tuser_trole.USER_ID user_id,
+		trole.ID role_id,
+		trole.TEXT role_text
+		FROM
+		tuser
+		JOIN tuser_trole ON tuser.ID = tuser_trole.USER_ID
+		JOIN trole ON tuser_trole.ROLE_ID = trole.ID
+	</select>
+	
+	<!-- getAll4直接用用户关联角色，一个用户拥有多个角色（不用userRoles进行关联了，getAll3是用userRoles进行关联查询的）
+		A、最终目的是一样的：通过用户获得用户的角色，只是getAll3首先是通过用户表获得用户角色关联表，然后通过用户角色关联表获取用户角色表
+											getAll4是直接通过用户获得用户的角色列表
+		B、getAll4和getAll3一样都能避免n+1次查询，不会发生n+1的那种情况，就执行了一次sql查询语句 -->
+	<resultMap type="sy.model.User" id="userResultMap4" extends="BaseResultMap">
+		<collection property="roles" javaType="list" ofType="sy.model.Role">
+			<id property="id" column="role_id" />
+			<result property="text" column="role_text" />
+		</collection>
+	</resultMap>
+	<!-- 此时需要定义一个返回结果集的映射resultMap="userResultMap4" -->
+	<!-- 结果类型：（二选一，要么resultMap，要么resultType）
+		resultMap="userResultMap4"
+		resultType="list"/resultType="map"
+	 -->
+	<!-- getAll4和getAll3的查询语句是样的，就是结果集map映射是不一样的 -->
+	<select id="getAll4" resultMap="userResultMap4">
+		SELECT
+		tuser.ID,
+		tuser.CREATEDATETIME,
+		tuser.MODIFYDATETIME,
+		tuser.`NAME`,
+		tuser.PWD,
+		tuser.CREATE_TIME,
+		tuser.UPDATE_TIME,
+		tuser_trole.ID,
+		tuser_trole.ROLE_ID,
+		tuser_trole.USER_ID,
 		trole.ID role_id,
 		trole.TEXT role_text
 		FROM
